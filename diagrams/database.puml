@@ -1,0 +1,40 @@
+@startuml database
+    title Database
+
+    !define table(x) class x << (T,#FFAAAA) >>
+    !define primary_key(x) <u>x</u>
+    hide methods
+    hide stereotypes
+
+    table(users) {
+        primary_key(id)
+        username
+        password
+        email
+    }
+
+    table(contacts) {
+        primary_key(id)
+        user_id
+        name
+        email
+        number
+    }
+
+    table(socialgroups) {
+        primary_key(id)
+        user_id
+        name
+    }
+
+    table(contact_socialgroups) {
+        primary_key(id)
+        contact_id
+        socialgroup_id
+    }
+
+    users "1" - "*" contacts
+    users "1" -- "*" socialgroups
+    socialgroups "1" - "*" contact_socialgroups
+    contacts "1" - "*" contact_socialgroups
+@enduml

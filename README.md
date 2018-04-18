@@ -9,3 +9,4 @@ Användare kommer kunna skapa och och logga in på deras konton för att komma �
 ## Sekvens Diagram
 
 ![Login](diagrams/login/login.png)
+![Login](diagrams/view_contacts/view_contacts.png)

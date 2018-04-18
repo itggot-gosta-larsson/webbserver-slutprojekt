@@ -1,0 +1,35 @@
+@startuml view_contacts
+    title View Contacts
+
+    actor Browser
+    participant "Web Server"
+    participant App.rb
+    database Database
+
+    activate Browser
+    Browser -> "Web Server": HTTP get /contacts
+    activate "Web Server"
+    "Web Server" -> App.rb: get('/contacts', \n\tsession={\n\t\t'user_id'=3\n\t})
+    activate App.rb
+
+    'Inside the app
+    App.rb -> App.rb: match route
+    activate App.rb
+    'Inside the route
+    alt session['user_id'] != nil
+        App.rb -> Database: SELECT * FROM contacts WHERE user_id IS 3
+        Database -> App.rb: @contacts = [\n\t[0,3,'Marie','012-435-23-34','marie@pm.me'],\n\t[6,3,'Robert','123-456-78-99','r0b3.rt@hjarntorget.se']&#93;\n]
+
+    else 
+        App.rb -> App.rb: flash[:error] = 'You need to be logged in to view your contacts'
+        App.rb -> App.rb: redirect '/login'
+    end
+    App.rb -> App.rb: slim('/contacts')
+    App.rb -> "Web Server": HTML
+    deactivate App.rb
+    deactivate App.rb
+    "Web Server" -> Browser: HTTP response
+
+    deactivate "Web Server"
+    deactivate Browser
+@enduml

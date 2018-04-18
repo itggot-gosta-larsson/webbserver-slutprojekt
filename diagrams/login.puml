@@ -30,6 +30,7 @@
     App.rb -> App.rb: slim('/login')
     App.rb -> "Web Server": HTML
     deactivate App.rb
+    deactivate App.rb
     "Web Server" -> Browser: HTTP response
 
     deactivate "Web Server"

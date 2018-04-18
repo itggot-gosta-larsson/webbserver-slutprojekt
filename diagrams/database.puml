@@ -28,7 +28,6 @@
     }
 
     table(contact_socialgroups) {
-        primary_key(id)
         contact_id
         socialgroup_id
     }

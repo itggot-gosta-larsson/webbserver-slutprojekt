@@ -1,0 +1,37 @@
+@startuml login
+    title Login to 'johnny.john' with password 'coolpass'
+
+    actor Browser
+    participant "Web Server"
+    participant App.rb
+    database Database
+
+    activate Browser
+    Browser -> "Web Server": HTTP post /login
+    activate "Web Server"
+    "Web Server" -> App.rb: post('/login', \n\tparams={\n\t\t'password'='coolpass', \n\t\t'username'='johnny.john'\n\t})
+    activate App.rb
+    App.rb -> App.rb: match route
+    activate App.rb
+    App.rb -> Database: SELECT * FROM users WHERE UPPER(username) IS UPPER(johnny.john)
+    activate Database
+    Database -> App.rb: result = [[5, 'johnny.john', 'an39n9qhh328x18mc', 'Johnny John'&#93;]
+    deactivate Database
+    alt result is not empty
+    alt password is 'coolpass'
+    App.rb -> App.rb: session['user_id'] = 'johnny.john'
+    App.rb -> App.rb: redirect('/contacts')
+    else 
+    App.rb -> App.rb: @error = 'Invalid password'
+    end
+    else result is empty
+    App.rb -> App.rb: @error = 'Invalid username'
+    end
+    App.rb -> App.rb: slim('/login')
+    App.rb -> "Web Server": HTML
+    deactivate App.rb
+    "Web Server" -> Browser: HTTP response
+
+    deactivate "Web Server"
+    deactivate Browser
+@enduml

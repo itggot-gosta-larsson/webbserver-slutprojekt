@@ -5,8 +5,8 @@ class App < Sinatra::Base
     before do 
         @database = SQLite3::Database.open("./db/database.sqlite")
         @user = nil
-        if session['username'] != nil
-            @user = @database.execute('SELECT * FROM users WHERE username IS ?', session['username']).first
+        if session['user_id']
+            @user = @database.execute('SELECT * FROM users WHERE id IS ?', session['user_id']).first
         end
     end
 
@@ -25,12 +25,14 @@ class App < Sinatra::Base
         @error = ""
         user_data = @database.execute('SELECT * FROM users WHERE username IS ?', params['username']).first
         if user_data
-            if user_data[2] == params['password']
-                session['username'] = params['username']
+            if BCrypt::Password.new(user_data[2]) == params['password']
+                session['user_id'] = user_data[0]
                 redirect '/contacts'
+            else
+                @error = "Invalid password."
             end
         else
-            @error = "User does not exist."
+            @error = "Invalid username."
         end
         slim :login
     end
@@ -44,10 +46,9 @@ class App < Sinatra::Base
             user_data = @database.execute('SELECT * FROM users WHERE username IS ? OR email IS ?', params['username'], params['email']).first
             if !user_data
                 @database.execute('INSERT INTO users(username, password, email) VALUES (?, ?, ?)', 
-                    params['username'], params['password'], params['email'])
+                    params['username'], BCrypt::Password.create(params['password']), params['email'])
                 redirect '/login'
             else
-                puts user_data[1]
                 if user_data[3] == params['email']
                     @error = "Email already in use."
                 elsif user_data[1] == params['username']

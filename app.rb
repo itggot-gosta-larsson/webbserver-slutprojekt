@@ -56,7 +56,7 @@ class App < Sinatra::Base
                 end 
             end
         else
-            @error = "Passwords do not match."
+            @error = "Passwords do not match." #Fråga att tänka på: svenska eller engelska?
         end
         slim :register
     end

@@ -1,0 +1,18 @@
+h2 Add user
+form action="/contacts/add" method="post"
+    p Username
+    input name="name" placeholder="name"
+    p Email
+    input name="email" placeholder="email"
+    br
+    p Phone-number
+    input name="number" placeholder="number"
+    h2 Social groups
+    ul
+        - @socialgroups.each do |s|
+            li
+                input type="checkbox" name="socialgroup_#{s[0]}" #{s[2]}
+    a href="/socialgroups" edit socialgroups
+    br
+    br
+    input type="submit" value="Add"

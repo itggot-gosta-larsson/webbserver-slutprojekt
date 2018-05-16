@@ -1,1 +1,6 @@
 p = "Welcome, #{@user[1]}"
+
+ul
+    - @contacts.each do |c|
+        li
+            ="#{c[2]} | #{c[3]} | #{c[4]}"

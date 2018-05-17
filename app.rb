@@ -168,6 +168,16 @@ class App < Sinatra::Base
             redirect '/contacts'
         end
     end
+    post '/contacts/delete/:id' do
+        if !@user
+            redirect '/login'
+        end
+
+        @database.execute('DELETE FROM contact_socialgroups WHERE contact_id IN (SELECT id FROM contacts WHERE user_id IS ? AND id IS ?)', @user[0], params[:id] )
+        @database.execute('DELETE FROM contacts WHERE id IS ? AND user_id IS ?', params[:id], @user[0])
+
+        redirect '/contacts'
+    end
 
     get '/contacts' do
         if !@user

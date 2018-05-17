@@ -5,6 +5,7 @@ require 'bundler'
 Bundler.require
 
 #Load the app
+require_relative 'utils.rb'
 require_relative 'app.rb'
 
 #Run the application

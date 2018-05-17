@@ -1,6 +1,14 @@
-p = "Welcome, #{@user[1]}"
-
-ul
+h1 = "Contacts"
+table.contacts
+    tr
+        th.name = "Name"
+        th.email = "Email"
+        th.number = "Number"
+        th.socialgroups = "Socialgroups"
     - @contacts.each do |c|
-        li
-            ="#{c[2]} | #{c[3]} | #{c[4]}"
+        tr
+            td.name 
+                a href="/contacts/#{c[0]}" = c[2]
+            td.email = c[3]
+            td.number = c[4]
+            td.socialgroups = c[5].map{ |sg| sg[2] }.join(", ")

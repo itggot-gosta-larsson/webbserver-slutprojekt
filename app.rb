@@ -189,4 +189,9 @@ class App < Sinatra::Base
         slim :contacts
     end
 
+    get '/logout' do
+        session.clear
+        redirect '/'
+    end
+
 end

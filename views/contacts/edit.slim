@@ -1,0 +1,20 @@
+p.error = @error
+h1 Edit contact
+form action="/contacts/#{@contact[0]}" method="post"
+    p Username
+    input name="name" placeholder="name" value="#{@contact[2]}"
+    p Email
+    input name="email" placeholder="email" value="#{@contact[3]}"
+    br
+    p Phone-number
+    input name="number" placeholder="number" value="#{@contact[4]}"
+    h2 Assign social groups
+    ul
+        - @socialgroups.each do |s|
+            li
+                -p @checked_groups
+                - if @checked_groups.include? s[0]
+                    input type="checkbox" name="socialgroup_#{s[0]}" checked="1" #{s[2]}
+                - else
+                    input type="checkbox" name="socialgroup_#{s[0]}" #{s[2]}
+    input type="submit" value="Edit"

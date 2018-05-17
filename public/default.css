@@ -13,3 +13,7 @@ ul {
 li {
     list-style-type: none;
 }
+.contacts > tbody > tr > td {
+    padding-left: 20px;
+    padding-right: 20px;
+}

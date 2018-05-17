@@ -18,3 +18,5 @@ form action="/contacts/#{@contact[0]}" method="post"
                 - else
                     input type="checkbox" name="socialgroup_#{s[0]}" #{s[2]}
     input type="submit" value="Edit"
+form action="/contacts/delete/#{@contact[0]}" method="post"
+    input type="submit" value="Delete contact"

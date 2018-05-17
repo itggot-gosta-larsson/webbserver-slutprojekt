@@ -1,4 +1,5 @@
-h2 Add user
+p.error = @error
+h1 Add contact
 form action="/contacts/add" method="post"
     p Username
     input name="name" placeholder="name"
@@ -7,12 +8,9 @@ form action="/contacts/add" method="post"
     br
     p Phone-number
     input name="number" placeholder="number"
-    h2 Social groups
+    h2 Assign social groups
     ul
         - @socialgroups.each do |s|
             li
                 input type="checkbox" name="socialgroup_#{s[0]}" #{s[2]}
-    a href="/socialgroups" edit socialgroups
-    br
-    br
     input type="submit" value="Add"

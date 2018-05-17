@@ -5,4 +5,8 @@ html
         meta name="keywords" content="quick contacts free online private list"
         link href="/default.css" rel="stylesheet"
     body
+        - if @user
+            a href="/socialgroups" Edit socialgroups | 
+            a href="/contacts" View contacts | 
+            a href="/contacts/add" Add new contact
         ==yield

@@ -1,4 +1,4 @@
-p = "Welcome, #{@user[1]}"
+h1 = "Add socialgroups"
 form action="/socialgroups/add" method="post"
     input name="name" placeholder="name"
     input type="submit" value="Add Socialgroup"
@@ -8,4 +8,3 @@ ul
             form action="/socialgroups/delete/#{s[0]}" method="post"
                 input type="submit" value="Delete"
                 =s[2]
-    

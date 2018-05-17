@@ -86,6 +86,7 @@ class App < Sinatra::Base
         result = @database.execute('SELECT * FROM socialgroups WHERE user_id IS ? AND id IS ?', @user[0], params['id'])
         if result.first != nil
             @database.execute('DELETE FROM socialgroups WHERE id IS ?', params['id'])
+            @database.execute('DELETE FROM contact_socialgroups WHERE socialgroup_id IS ?', params['id'])
         end
         redirect '/socialgroups'
     end
@@ -106,25 +107,23 @@ class App < Sinatra::Base
             redirect '/login'
         end
 
-        @database.execute('INSERT INTO contacts(user_id, name, email, number) VALUES (?, ?, ?, ?)', @user[0], params['name'], params['email'], params['number'])
-        socialgroups = []
-        params.each do |s,v|
-            if s.start_with? "socialgroup"
-                n = s.split("_")[1].to_i
-                socialgroups += [n]
+        if params['name'] == ""
+            @error = 'Please enter a contact name.'
+            @socialgroups = @database.execute('SELECT * FROM socialgroups WHERE user_id IS ?', @user[0])
+            slim :'contacts/add'
+        else
+            @database.execute('INSERT INTO contacts(user_id, name, email, number) VALUES (?, ?, ?, ?)', @user[0], params['name'], params['email'], params['number'])
+            contact_id = @database.execute("SELECT last_insert_rowid()").first.first
+            socialgroup_ids = []
+            params.each do |s,v|
+                if s.start_with? "socialgroup"
+                    sg_id = s.split("_")[1].to_i
+                    socialgroup_ids.push(sg_id)
+                end
             end
+            Utils.add_socialgroups(@database, socialgroup_ids, contact_id, @user)
+            redirect '/contacts'
         end
-        test_statement = ""
-        socialgroups.each do |s|
-            if test_statement != ""
-                test_statement += " OR "                
-            end
-            test_statement += "id IS #{s}"
-        end
-        confirmed_socialgroups = @database.execute('SELECT * FROM socialgroups WHERE user_id IS ? AND (?)', @user[0], test_statement)
-        puts "SELECT * FROM socialgroups WHERE user_id IS #{@user[0]} AND (#{test_statement})"
-        puts confirmed_socialgroups
-        redirect '/contacts'
     end
 
     get '/contacts/:id' do
@@ -132,9 +131,42 @@ class App < Sinatra::Base
             redirect '/login'
         end
 
-        @contact_id = params[:id]
+        @contact = @database.execute("SELECT * FROM contacts WHERE id IS ? AND user_id IS ?", params[:id], @user[0]).first
+        @socialgroups = @database.execute('SELECT * FROM socialgroups WHERE user_id IS ?', @user[0])
+        @checked_groups = @database.execute("SELECT * FROM contact_socialgroups WHERE contact_id IS ?", params[:id]).map {|s| s[1].to_i}
 
-        slim :'contacts/view'
+        if !@contact
+            redirect '/contacts'
+        end
+        slim :'contacts/edit'
+    end
+    post '/contacts/:id' do
+        if !@user
+            redirect '/login'
+        end
+
+        if params['name'] == ""
+            @error = 'Please enter a contact name.'
+
+            @contact = @database.execute("SELECT * FROM contacts WHERE id IS ? AND user_id IS ?", params[:id], @user[0]).first
+            @socialgroups = @database.execute('SELECT * FROM socialgroups WHERE user_id IS ?', @user[0])
+            @checked_groups = @database.execute("SELECT * FROM contact_socialgroups WHERE contact_id IS ?", params[:id]).map {|s| s[1].to_i}
+
+            slim :'contacts/edit'
+        else
+            @database.execute('UPDATE contacts SET name = ?, email = ?, number = ? WHERE user_id IS ? AND id IS ?',params['name'], params['email'], params['number'], @user[0], params[:id])
+            @database.execute('DELETE FROM contact_socialgroups WHERE contact_id IS (SELECT id FROM contacts WHERE user_id IS ? AND id IS ?)', @user[0], params[:id])
+            contact_id = params[:id]
+            socialgroup_ids = []
+            params.each do |s,v|
+                if s.start_with? "socialgroup"
+                    sg_id = s.split("_")[1].to_i
+                    socialgroup_ids.push(sg_id)
+                end
+            end
+            Utils.add_socialgroups(@database, socialgroup_ids, contact_id, @user)
+            redirect '/contacts'
+        end
     end
 
     get '/contacts' do
@@ -143,7 +175,7 @@ class App < Sinatra::Base
         end
 
         @contacts = @database.execute('SELECT * FROM contacts WHERE user_id IS ?', @user[0])
-
+        @contacts.map { |c| c.push(@database.execute("SELECT * FROM socialgroups WHERE id IN (SELECT socialgroup_id FROM contact_socialgroups WHERE contact_id IS #{c[0]})")) }
         slim :contacts
     end
 
